@@ -1,1 +1,22 @@
-<p>pdf-upload works!</p>
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <div class="card p-4 shadow-sm">
+      <h3 class="card-title mb-4">⬆️ Încarcă Document PDF</h3>
+      <form>
+        <div class="mb-3">
+          <label for="pdfFile" class="form-label">Selectează fișierul</label>
+          <input type="file" class="form-control" id="pdfFile" accept="application/pdf" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Descriere (Opțional)</label>
+          <textarea class="form-control" id="description" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-cloud-upload"></i> Începe Procesarea
+        </button>
+      </form>
+      <hr>
+      <p class="text-muted small">Fișierele sunt procesate automat după încărcare.</p>
+    </div>
+  </div>
+</div>

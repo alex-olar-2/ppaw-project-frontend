@@ -1,1 +1,19 @@
-<p>login works!</p>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <div class="card p-4 shadow" style="width: 24rem;">
+    <h2 class="card-title text-center mb-4">🔐 Autentificare</h2>
+    <form>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="nume@exemplu.com">
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Parolă</label>
+        <input type="password" class="form-control" id="password" placeholder="Parolă">
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Intră în cont</button>
+    </form>
+    <div class="mt-3 text-center">
+      Nu ai cont? <a [routerLink]="['/signup']">Înregistrează-te</a>
+    </div>
+  </div>
+</div>
