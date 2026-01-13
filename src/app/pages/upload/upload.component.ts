@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { IdentityDocumentService } from '../../services/identity-document.service';
 
 interface UploadedFile {
   name: string;
   size: number;
-  progress: number;
-  status: 'uploading' | 'success' | 'error';
+  status: 'ready' | 'error'; // Am simplificat statusurile
+  originalFile: File;
 }
 
 @Component({
@@ -19,10 +20,15 @@ interface UploadedFile {
 export class UploadComponent {
   uploadedFiles: UploadedFile[] = [];
   isDragging = false;
+  isLoading = false; // Controlează ecranul de "freeze"
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private identityService: IdentityDocumentService
+  ) {}
 
   onDragOver(event: DragEvent): void {
+    if (this.isLoading) return;
     event.preventDefault();
     event.stopPropagation();
     this.isDragging = true;
@@ -35,6 +41,7 @@ export class UploadComponent {
   }
 
   onDrop(event: DragEvent): void {
+    if (this.isLoading) return;
     event.preventDefault();
     event.stopPropagation();
     this.isDragging = false;
@@ -53,31 +60,26 @@ export class UploadComponent {
   }
 
   handleFiles(files: FileList): void {
-    Array.from(files).forEach(file => {
+    if (files.length > 0) {
+      const file = files[0];
+      
       if (file.type === 'application/pdf') {
+        // Resetăm lista (doar un fișier permis)
+        this.uploadedFiles = []; 
+
         const uploadedFile: UploadedFile = {
           name: file.name,
           size: file.size,
-          progress: 0,
-          status: 'uploading'
+          status: 'ready', // E gata instantaneu
+          originalFile: file
         };
         this.uploadedFiles.push(uploadedFile);
-        this.simulateUpload(uploadedFile);
       }
-    });
-  }
-
-  simulateUpload(file: UploadedFile): void {
-    const interval = setInterval(() => {
-      file.progress += 10;
-      if (file.progress >= 100) {
-        file.status = 'success';
-        clearInterval(interval);
-      }
-    }, 300);
+    }
   }
 
   removeFile(file: UploadedFile): void {
+    if (this.isLoading) return;
     const index = this.uploadedFiles.indexOf(file);
     if (index > -1) {
       this.uploadedFiles.splice(index, 1);
@@ -85,15 +87,33 @@ export class UploadComponent {
   }
 
   processFiles(): void {
-    console.log('Processing files:', this.uploadedFiles);
-    // Navigate back to dashboard after processing
-    setTimeout(() => {
-      this.router.navigate(['/dashboard']);
-    }, 1000);
+    if (this.uploadedFiles.length === 0) return;
+
+    // 1. Activăm freeze-ul
+    this.isLoading = true;
+    const fileToAnalyze = this.uploadedFiles[0].originalFile;
+
+    // 2. Apelăm serviciul
+    this.identityService.analyzeDocumentFromFile(fileToAnalyze).subscribe({
+      next: (result) => {
+        console.log('Analysis Result:', result);
+        this.isLoading = false; // 3. Dezactivăm freeze-ul când avem răspunsul
+        
+        // Navigare
+        this.router.navigate(['/dashboard']); 
+      },
+      error: (error) => {
+        console.error('Analysis Error:', error);
+        this.uploadedFiles[0].status = 'error';
+        this.isLoading = false; // 3. Dezactivăm freeze-ul și la eroare
+      }
+    });
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard']);
+    if (!this.isLoading) {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   formatFileSize(bytes: number): string {
@@ -102,9 +122,5 @@ export class UploadComponent {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  }
-
-  hasUploadingFiles(): boolean {
-    return this.uploadedFiles.some(f => f.status === 'uploading');
   }
 }
