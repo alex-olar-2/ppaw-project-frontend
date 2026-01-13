@@ -48,4 +48,12 @@ export class DashboardComponent {
   logout(): void {
     this.router.navigate(['/login']);
   }
+
+  profile(): void {
+    this.router.navigate(['/profile']);
+  }
+
+  subscriptions(): void {
+    this.router.navigate(['/subscriptions']);
+  }
 }
