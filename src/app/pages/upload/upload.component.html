@@ -1,0 +1,127 @@
+<div class="container-fluid">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">PDF Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#" (click)="goBack()">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="#">Upload</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+      <div class="col">
+        <button class="btn btn-outline-secondary mb-3" (click)="goBack()">
+          <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </button>
+        <h2 class="fw-bold">Upload PDF Documents</h2>
+        <p class="text-muted">Drag and drop your PDF files or click to browse</p>
+      </div>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div 
+          class="upload-zone border-3 border-dashed rounded-4 p-5 text-center"
+          [ngClass]="{ 'border-primary bg-primary bg-opacity-10': isDragging, 'border-secondary': !isDragging }"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <i class="bi bi-cloud-upload display-1 text-muted mb-3 d-block"></i>
+          <h4 class="mb-3">Drag & Drop PDF files here</h4>
+          <p class="text-muted mb-4">or</p>
+          <label class="btn btn-primary btn-lg">
+            <i class="bi bi-folder2-open me-2"></i>Browse Files
+            <input 
+              type="file" 
+              class="d-none" 
+              accept=".pdf"
+              multiple
+              (change)="onFileSelected($event)"
+            />
+          </label>
+          <p class="text-muted mt-3 mb-0">Supported format: PDF (Max 50MB per file)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Uploaded Files List -->
+    <div class="row" *ngIf="uploadedFiles.length > 0">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Uploaded Files ({{ uploadedFiles.length }})</h5>
+            <button 
+              class="btn btn-success"
+              (click)="processFiles()"
+              [disabled]="hasUploadingFiles()"
+            >
+              <i class="bi bi-play-circle me-2"></i>Process All Files
+            </button>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              <div 
+                class="list-group-item" 
+                *ngFor="let file of uploadedFiles"
+              >
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center flex-grow-1">
+                    <i class="bi bi-file-earmark-pdf text-danger fs-3 me-3"></i>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{ file.name }}</h6>
+                      <small class="text-muted">{{ formatFileSize(file.size) }}</small>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <span 
+                      class="badge me-3"
+                      [ngClass]="{
+                        'bg-warning': file.status === 'uploading',
+                        'bg-success': file.status === 'success',
+                        'bg-danger': file.status === 'error'
+                      }"
+                    >
+                      {{ file.status === 'uploading' ? 'Uploading' : 
+                         file.status === 'success' ? 'Complete' : 'Error' }}
+                    </span>
+                    <button 
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="removeFile(file)"
+                      [disabled]="file.status === 'uploading'"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="progress" style="height: 6px;" *ngIf="file.status === 'uploading'">
+                  <div 
+                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    [style.width.%]="file.progress"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

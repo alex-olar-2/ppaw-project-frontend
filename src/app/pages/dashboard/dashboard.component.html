@@ -1,0 +1,167 @@
+<div class="container-fluid">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">PDF Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" (click)="navigateToUpload()">Upload</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" (click)="logout()">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+      <div class="col">
+        <h2 class="fw-bold">Dashboard</h2>
+        <p class="text-muted">Manage your PDF documents</p>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" (click)="navigateToUpload()">
+          <i class="bi bi-plus-circle me-2"></i>Upload PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted mb-1">Total Documents</p>
+                <h3 class="fw-bold mb-0">{{ stats.totalDocuments }}</h3>
+              </div>
+              <div class="bg-primary bg-opacity-10 p-3 rounded">
+                <i class="bi bi-file-earmark-pdf text-primary fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted mb-1">Processed Today</p>
+                <h3 class="fw-bold mb-0">{{ stats.processedToday }}</h3>
+              </div>
+              <div class="bg-success bg-opacity-10 p-3 rounded">
+                <i class="bi bi-check-circle text-success fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted mb-1">Pending Review</p>
+                <h3 class="fw-bold mb-0">{{ stats.pendingReview }}</h3>
+              </div>
+              <div class="bg-warning bg-opacity-10 p-3 rounded">
+                <i class="bi bi-clock text-warning fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted mb-1">Total Size</p>
+                <h3 class="fw-bold mb-0">{{ stats.totalSize }}</h3>
+              </div>
+              <div class="bg-info bg-opacity-10 p-3 rounded">
+                <i class="bi bi-hdd text-info fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Documents -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">Recent Documents</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Name</th>
+                    <th>Upload Date</th>
+                    <th>Status</th>
+                    <th>Size</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let doc of documents">
+                    <td>
+                      <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                      {{ doc.name }}
+                    </td>
+                    <td>{{ doc.uploadDate | date: 'MMM d, y' }}</td>
+                    <td>
+                      <span 
+                        class="badge"
+                        [ngClass]="{
+                          'bg-success': doc.status === 'Processed',
+                          'bg-warning': doc.status === 'Pending'
+                        }"
+                      >
+                        {{ doc.status }}
+                      </span>
+                    </td>
+                    <td>{{ doc.size }}</td>
+                    <td>
+                      <button 
+                        class="btn btn-sm btn-outline-primary me-2" 
+                        (click)="viewDocument(doc)"
+                      >
+                        View
+                      </button>
+                      <button 
+                        class="btn btn-sm btn-outline-danger" 
+                        (click)="deleteDocument(doc)"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

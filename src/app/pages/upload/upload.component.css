@@ -1,0 +1,23 @@
+.upload-zone {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-zone:hover {
+  border-color: var(--bs-primary) !important;
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+.progress {
+  border-radius: 10px;
+  overflow: hidden;
+}
