@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+// Asigură-te că importul este corect
 import { IdentityDocumentService } from '../../services/identity-document.service';
+import { IdentityCardService } from '../../services/identity-card.service'; 
+import { IdentityCard } from '../../models/models';
 
 interface UploadedFile {
   name: string;
   size: number;
-  status: 'ready' | 'error'; // Am simplificat statusurile
+  status: 'ready' | 'error';
   originalFile: File;
 }
 
@@ -20,12 +23,15 @@ interface UploadedFile {
 export class UploadComponent {
   uploadedFiles: UploadedFile[] = [];
   isDragging = false;
-  isLoading = false; // Controlează ecranul de "freeze"
+  isLoading = false;
 
   constructor(
     private router: Router,
-    private identityService: IdentityDocumentService
+    private identityDocumentService: IdentityDocumentService, // Serviciul vechi (poate vrei să îl păstrezi)
+    private identityCardService: IdentityCardService // [MODIFICARE] Injectăm noul serviciu
   ) {}
+
+  // ... (restul metodelor onDragOver, onDrop, handleFiles rămân neschimbate) ...
 
   onDragOver(event: DragEvent): void {
     if (this.isLoading) return;
@@ -64,13 +70,11 @@ export class UploadComponent {
       const file = files[0];
       
       if (file.type === 'application/pdf') {
-        // Resetăm lista (doar un fișier permis)
         this.uploadedFiles = []; 
-
         const uploadedFile: UploadedFile = {
           name: file.name,
           size: file.size,
-          status: 'ready', // E gata instantaneu
+          status: 'ready',
           originalFile: file
         };
         this.uploadedFiles.push(uploadedFile);
@@ -86,26 +90,38 @@ export class UploadComponent {
     }
   }
 
+  // [MODIFICARE] Metoda processFiles actualizată
   processFiles(): void {
     if (this.uploadedFiles.length === 0) return;
 
-    // 1. Activăm freeze-ul
     this.isLoading = true;
-    const fileToAnalyze = this.uploadedFiles[0].originalFile;
 
-    // 2. Apelăm serviciul
-    this.identityService.analyzeDocumentFromFile(fileToAnalyze).subscribe({
-      next: (result) => {
-        console.log('Analysis Result:', result);
-        this.isLoading = false; // 3. Dezactivăm freeze-ul când avem răspunsul
+    var cnp = Math.floor((Math.random() * 10000));
+    // Obiectul de test hardcodat
+    const hardcodedCard: Partial<IdentityCard> = {
+      cnp: cnp.toString(),
+      series: 'RX',
+      firstName: 'Ion',
+      lastName: 'Popescu',
+      address: 'Strada Exemplului Nr. 1',
+      city: 'București',
+      county: 'Sector 1',
+      country: 'România'
+    };
+
+    // Apelăm AddIdentityCard din backend prin serviciu
+    this.identityCardService.addIdentityCard(hardcodedCard).subscribe({
+      next: () => {
+        console.log('Obiectul hardcodat a fost adăugat cu succes!');
+        this.isLoading = false;
         
-        // Navigare
+        // Navigare către dashboard
         this.router.navigate(['/dashboard']); 
       },
       error: (error) => {
-        console.error('Analysis Error:', error);
+        console.error('Eroare la adăugarea obiectului hardcodat:', error);
         this.uploadedFiles[0].status = 'error';
-        this.isLoading = false; // 3. Dezactivăm freeze-ul și la eroare
+        this.isLoading = false;
       }
     });
   }
