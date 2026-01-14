@@ -22,23 +22,23 @@ export class UserService {
     });
   }
 
-  // ADĂUGAT: Metoda de login
+  // src/app/services/user.service.ts
+
+// ... importuri
+
   login(email: string, password: string): Observable<User> {
     const params = new HttpParams()
       .set('email', email)
       .set('password', password);
     
-    // Backend-ul returnează: { token: string, userId: string, email: string }
-    // Folosim <any> temporar pentru răspunsul de la API pentru a-l mapa manual
     return this.http.get<any>(`${this.apiUrl}/Login`, { params }).pipe(
       map(response => {
-        // Construim obiectul User pe baza răspunsului
+        // Corecție: Verificăm ambele variante (UserId sau userId)
         const user: User = {
-          id: response.userId,     // Backend: UserId -> Frontend: id
-          email: response.email,   // Backend: Email  -> Frontend: email
-          token: response.token,   // Backend: Token  -> Frontend: token
-          isVisible: true          // Default pentru BaseEntity
-          // Restul câmpurilor (roleId, etc.) rămân undefined momentan
+          id: response.userId || response.UserId,     // <--- Fix critic
+          email: response.email || response.Email,
+          token: response.token || response.Token,
+          isVisible: true
         } as User;
 
         return user;
