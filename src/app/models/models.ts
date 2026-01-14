@@ -7,8 +7,12 @@ export interface User extends BaseEntity {
   email?: string;
   password?: string;
   cui?: string;
-  subscriptionId: string;
-  roleId: string;
+  token?: string; // <--- Adaugă acest câmp
+  
+  // Marchează acestea ca opționale dacă nu vin la login, sau asigură-te că le gestionezi
+  subscriptionId?: string; 
+  roleId?: string;
+  
   subscription?: Subscription;
   role?: Role;
 }

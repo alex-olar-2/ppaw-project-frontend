@@ -27,22 +27,24 @@ export class LoginComponent {
   onSubmit(): void {
     console.log('Login attempt:', { email: this.email });
 
-    // Apelăm metoda de login din UserService
     this.userService.login(this.email, this.password).subscribe({
       next: (user) => {
-        if (user) {
-          // Salvăm utilizatorul în sesiune (AuthService)
+        if (user && user.token) { // Verificăm dacă avem user și token
           this.authService.login(user);
           console.log('Login successful', user);
-          // Navigăm către dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          this.errorMessage = 'Email sau parolă incorectă.';
+          this.errorMessage = 'Datele primite de la server sunt invalide.';
         }
       },
       error: (err) => {
-        console.error('Login error', err);
-        this.errorMessage = 'A apărut o eroare la autentificare. Verificați datele.';
+        console.error('Login error details:', err);
+        // Poți verifica statusul erorii
+        if (err.status === 401) {
+             this.errorMessage = 'Email sau parolă incorectă.';
+        } else {
+             this.errorMessage = 'A apărut o eroare de conexiune.';
+        }
       }
     });
   }

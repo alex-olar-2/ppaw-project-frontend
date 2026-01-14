@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { User } from '../models/models';
 import { environment } from '../../environment/environment';
 
@@ -28,9 +28,22 @@ export class UserService {
       .set('email', email)
       .set('password', password);
     
-    // Presupunem că endpoint-ul este /Login și returnează obiectul User complet
-    // Dacă backend-ul folosește POST pentru login, schimbă .get cu .post
-    return this.http.get<User>(`${this.apiUrl}/Login`, { params });
+    // Backend-ul returnează: { token: string, userId: string, email: string }
+    // Folosim <any> temporar pentru răspunsul de la API pentru a-l mapa manual
+    return this.http.get<any>(`${this.apiUrl}/Login`, { params }).pipe(
+      map(response => {
+        // Construim obiectul User pe baza răspunsului
+        const user: User = {
+          id: response.userId,     // Backend: UserId -> Frontend: id
+          email: response.email,   // Backend: Email  -> Frontend: email
+          token: response.token,   // Backend: Token  -> Frontend: token
+          isVisible: true          // Default pentru BaseEntity
+          // Restul câmpurilor (roleId, etc.) rămân undefined momentan
+        } as User;
+
+        return user;
+      })
+    );
   }
 
   addUser(data: Partial<User>): Observable<void> {
