@@ -44,9 +44,7 @@
                   [(ngModel)]="rememberMe"
                   name="rememberMe"
                 />
-                <label class="form-check-label" for="rememberMe">
-                  Remember me
-                </label>
+                <label class="form-check-label" for="rememberMe"> Remember me </label>
               </div>
               <a href="#" class="text-decoration-none" (click)="onForgotPassword()">
                 Forgot password?
@@ -54,14 +52,14 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-              Sign In
+              <a routerLink="/register" class="text-decoration-none fw-bold">Sign Up</a>
             </button>
           </form>
 
           <div class="text-center">
             <p class="text-muted mb-0">
-              Don't have an account? 
-              <a href="#" class="text-decoration-none fw-bold">Sign up</a>
+              Don't have an account?
+              <a routerLink="/register" class="text-decoration-none fw-bold">Sign Up</a>
             </p>
           </div>
         </div>

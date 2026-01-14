@@ -4,10 +4,12 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { SubscriptionsComponent } from './pages/subscriptions/subscriptions.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { RegisterComponent } from './pages/register/register.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'subscriptions', component: SubscriptionsComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'dashboard', component: DashboardComponent },

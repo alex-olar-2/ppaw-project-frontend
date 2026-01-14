@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UseService } from '../../services/use.service';
-import { Use } from '../../models/models';
+import { Use, User } from '../../models/models';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,7 @@ import { Use } from '../../models/models';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
+  currentUser: User | null = null;
   uses: Use[] = [];
   loading: boolean = true;
 
@@ -29,8 +31,18 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private useService: UseService
-  ) {}
+    private useService: UseService,
+    private authService: AuthService
+  ) {
+    this.currentUser = this.authService.currentUserValue;
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+
+  onLogout() {
+    this.authService.logout();
+  }
 
   ngOnInit(): void {
     this.loadUses();
