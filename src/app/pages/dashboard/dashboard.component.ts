@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UseService } from '../../services/use.service';
+//
+import { IdentityCardService } from '../../services/identity-card.service'; // Importă serviciul
 import { Use, User } from '../../models/models';
 import { AuthService } from '../../services/auth.service';
 
@@ -21,6 +23,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private router: Router,
     private useService: UseService,
+    private identityCardService: IdentityCardService, // Injectăm serviciul aici
     private authService: AuthService
   ) {
     this.authService.currentUser$.subscribe(user => {
@@ -43,6 +46,22 @@ export class DashboardComponent implements OnInit {
     this.useService.getUsesByUserId(this.currentUser.id).subscribe({
       next: (data: Use[]) => {
         this.uses = data;
+        
+        // --- LOGICA NOUĂ: Iterăm și populăm datele despre buletin ---
+        this.uses.forEach(use => {
+          // Verificăm dacă există un ID de buletin dar obiectul identityCard lipsește
+          if (use.identityCardId && !use.identityCard) {
+             this.identityCardService.getIdentityCardById(use.identityCardId).subscribe({
+               next: (card) => {
+                 // Atribuim rezultatul în obiectul use curent
+                 use.identityCard = card;
+               },
+               error: (err) => console.error(`Nu s-a putut încărca buletinul ${use.identityCardId}`, err)
+             });
+          }
+        });
+        // ------------------------------------------------------------
+
         this.calculateStats();
         this.loading = false;
       },
@@ -53,6 +72,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Restul metodelor (calculateStats, navigateToUpload, onLogout, deleteUse) rămân neschimbate
   calculateStats(): void {
     if (!this.uses) return;
     this.stats.totalUses = this.uses.length;

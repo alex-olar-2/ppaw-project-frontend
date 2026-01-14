@@ -1,139 +1,75 @@
-<div class="container-fluid">
-  <div class="container">
-    <div class="row mb-4">
-      <div class="col">
-        <h2 class="fw-bold">Dashboard</h2>
-        <p class="text-muted">Istoric utilizări și scanări</p>
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h5 class="mb-0 fw-bold">Istoric Recent</h5>
       </div>
-      <div class="col-auto">
-        <button class="btn btn-primary" (click)="navigateToUpload()">
-          <i class="bi bi-plus-circle me-2"></i>Scanează Document
-        </button>
-      </div>
-    </div>
-
-    <div class="row mb-4">
-      <div class="col-md-3 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <p class="text-muted mb-1">Total Utilizări</p>
-                <h3 class="fw-bold mb-0">{{ stats.totalUses }}</h3>
-              </div>
-              <div class="bg-primary bg-opacity-10 p-3 rounded">
-                <i class="bi bi-activity text-primary fs-4"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <p class="text-muted mb-1">Succese</p>
-                <h3 class="fw-bold mb-0">{{ stats.successful }}</h3>
-              </div>
-              <div class="bg-success bg-opacity-10 p-3 rounded">
-                <i class="bi bi-check-circle text-success fs-4"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <p class="text-muted mb-1">Eșuate</p>
-                <h3 class="fw-bold mb-0">{{ stats.failed }}</h3>
-              </div>
-              <div class="bg-danger bg-opacity-10 p-3 rounded">
-                <i class="bi bi-x-circle text-danger fs-4"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <p class="text-muted mb-1">Ultima Activitate</p>
-                <h3 class="fw-bold mb-0 fs-5">{{ stats.lastActivity }}</h3>
-              </div>
-              <div class="bg-info bg-opacity-10 p-3 rounded">
-                <i class="bi bi-calendar-event text-info fs-4"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold">Istoric Recent</h5>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Persoana Identificată</th>
-                    <th>Data Scanării</th>
-                    <th>Status</th>
-                    <th>Detalii ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngIf="loading">
-                    <td colspan="5" class="text-center py-4">Se încarcă datele...</td>
-                  </tr>
-                  <tr *ngIf="!loading && uses.length === 0">
-                    <td colspan="5" class="text-center py-4">Nu există înregistrări.</td>
-                  </tr>
-                  <tr *ngFor="let use of uses">
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-person-badge text-primary me-2 fs-5"></i>
-                        <span class="fw-medium">
-                          {{ use.identityCard ? (use.identityCard.firstName + ' ' + use.identityCard.lastName) : 'Necunoscut' }}
-                        </span>
-                      </div>
-                    </td>
-                    <td>{{ use.createdAt | date: 'medium' }}</td>
-                    <td>
-                      <span 
-                        class="badge rounded-pill"
-                        [ngClass]="{
-                          'bg-success': use.isSucceeded,
-                          'bg-danger': !use.isSucceeded
-                        }"
-                      >
-                        {{ use.isSucceeded ? 'Reușit' : 'Eșuat' }}
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Persoana Identificată</th>
+                <th>Data Scanării</th>
+                <th>Status</th>
+                <th>Detalii ID</th>
+                <th>Acțiuni</th> 
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="loading">
+                <td colspan="5" class="text-center py-4">Se încarcă datele...</td>
+              </tr>
+              <tr *ngIf="!loading && uses.length === 0">
+                <td colspan="5" class="text-center py-4">Nu există înregistrări.</td>
+              </tr>
+              <tr *ngFor="let use of uses">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-person-badge text-primary me-2 fs-5"></i>
+                    <div class="d-flex flex-column">
+                      <span class="fw-medium">
+                        {{ use.identityCard ? (use.identityCard.firstName + ' ' + use.identityCard.lastName) : 'Se încarcă...' }}
                       </span>
-                    </td>
-                    <td>
-                      <small class="text-muted" *ngIf="use.identityCard">
-                        CNP: {{ use.identityCard.cnp }}
-                      </small>
-                      <small class="text-muted" *ngIf="!use.identityCard">-</small>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                      <small class="text-muted" *ngIf="!use.identityCard && !use.identityCardId">Nealocat</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ use.createdAt | date: 'medium' }}</td>
+                <td>
+                  <span 
+                    class="badge rounded-pill"
+                    [ngClass]="{
+                      'bg-success': use.isSucceeded,
+                      'bg-danger': !use.isSucceeded
+                    }"
+                  >
+                    {{ use.isSucceeded ? 'Reușit' : 'Eșuat' }}
+                  </span>
+                </td>
+                <td>
+                  <div *ngIf="use.identityCard">
+                    <small class="d-block text-muted"><strong>CNP:</strong> {{ use.identityCard.cnp }}</small>
+                    <small class="d-block text-muted"><strong>Serie:</strong> {{ use.identityCard.series }}</small>
+                    <small class="d-block text-muted">
+                      <i class="bi bi-geo-alt"></i> {{ use.identityCard.city }}, {{ use.identityCard.county }}
+                    </small>
+                  </div>
+                  <div *ngIf="!use.identityCard && use.identityCardId">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                  <small class="text-muted" *ngIf="!use.identityCardId">-</small>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteUse(use)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
