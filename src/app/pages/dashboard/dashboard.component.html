@@ -93,7 +93,6 @@
                     <th>Data Scanării</th>
                     <th>Status</th>
                     <th>Detalii ID</th>
-                    <th>Acțiuni</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,22 +128,6 @@
                         CNP: {{ use.identityCard.cnp }}
                       </small>
                       <small class="text-muted" *ngIf="!use.identityCard">-</small>
-                    </td>
-                    <td>
-                      <button 
-                        class="btn btn-sm btn-outline-primary me-2" 
-                        (click)="viewUse(use)"
-                        title="Vezi detalii"
-                      >
-                        <i class="bi bi-eye"></i>
-                      </button>
-                      <button 
-                        class="btn btn-sm btn-outline-danger" 
-                        (click)="deleteUse(use)"
-                        title="Șterge"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
                     </td>
                   </tr>
                 </tbody>
