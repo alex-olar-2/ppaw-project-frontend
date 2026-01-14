@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subscription } from '../../models/models'; //
-import { SubscriptionService } from '../../services/subscription.service'; //
+import { Subscription, User } from '../../models/models';
+import { SubscriptionService } from '../../services/subscription.service';
+import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-subscriptions',
@@ -13,11 +15,32 @@ import { SubscriptionService } from '../../services/subscription.service'; //
 })
 export class SubscriptionsComponent implements OnInit {
   subscriptions: Subscription[] = [];
+  currentUser: User | null = null;
+  currentSubscriptionId: string | null = null;
 
-  constructor(private subscriptionService: SubscriptionService) {}
+  constructor(
+    private subscriptionService: SubscriptionService,
+    private userService: UserService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.loadSubscriptions();
+    // Obținem utilizatorul logat (acesta poate avea date incomplete din login, deci îl vom reîncărca)
+    const storedUser = this.authService.currentUserValue;
+    
+    if (storedUser && storedUser.id) {
+      // Încărcăm detaliile complete ale utilizatorului pentru a vedea subscriptionId
+      this.userService.getUserById(storedUser.id).subscribe({
+        next: (user) => {
+          this.currentUser = user;
+          this.currentSubscriptionId = user.subscriptionId || null;
+          this.loadSubscriptions(); // Încărcăm abonamentele după ce știm user-ul
+        },
+        error: (err) => console.error('Error fetching user details:', err)
+      });
+    } else {
+      this.loadSubscriptions();
+    }
   }
 
   loadSubscriptions(): void {
@@ -31,16 +54,30 @@ export class SubscriptionsComponent implements OnInit {
     });
   }
 
-  // Metodă ajutătoare pentru a afișa facilitățile în funcție de nume (deoarece modelul nu le conține)
-  getFeaturesForPlan(planName: string): string[] {
-    const name = planName.toLowerCase();
-    if (name.includes('free')) {
-      return ['5 GB Storage', 'Basic File Upload', 'Basic Support'];
-    } else if (name.includes('pro')) {
-      return ['100 GB Storage', 'Advanced File Upload', 'Priority Support', 'Advanced Features', 'File Sharing'];
-    } else if (name.includes('enterprise')) {
-      return ['1 TB Storage', 'Advanced File Upload', '24/7 Premium Support', 'All Features', 'Team Collaboration'];
+  selectPlan(plan: Subscription): void {
+    if (!this.currentUser) return;
+
+    if (plan.id === this.currentSubscriptionId) {
+      return; // Este deja planul curent
     }
-    return ['Standard Features'];
+
+    if (confirm(`Are you sure you want to switch to the ${plan.name} plan?`)) {
+      this.userService.editUser(this.currentUser.id, { subscriptionId: plan.id }).subscribe({
+        next: () => {
+          this.currentSubscriptionId = plan.id;
+          alert('Subscription updated successfully!');
+          // Opțional: reîncarcă userul sau pagina
+        },
+        error: (err) => {
+          console.error('Error updating subscription:', err);
+          alert('Failed to update subscription.');
+        }
+      });
+    }
+  }
+
+  // Helper pentru a găsi obiectul abonament curent (pentru afișare în cardul de sus)
+  get currentSubscriptionPlan(): Subscription | undefined {
+    return this.subscriptions.find(s => s.id === this.currentSubscriptionId);
   }
 }
