@@ -5,16 +5,16 @@ import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { RoleService } from '../../services/role.service';
 import { SubscriptionService } from '../../services/subscription.service';
+import { AuthService } from '../../services/auth.service'; // Import AuthService
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css' // Poți crea un fișier css gol sau copia stilurile din login
+  styleUrl: './register.component.css'
 })
 export class RegisterComponent implements OnInit {
-  // Model pentru formular
   registerData = {
     email: '',
     password: '',
@@ -30,23 +30,18 @@ export class RegisterComponent implements OnInit {
     private userService: UserService,
     private roleService: RoleService,
     private subscriptionService: SubscriptionService,
+    private authService: AuthService, // Injectăm AuthService
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Obținem Rolul Implicit
     this.roleService.getDefaultRole().subscribe({
-      next: (role) => {
-        if (role) this.defaultRoleId = role.id;
-      },
+      next: (role) => { if (role) this.defaultRoleId = role.id; },
       error: (err) => console.error('Error fetching default role', err)
     });
 
-    // Obținem Abonamentul Implicit
     this.subscriptionService.getDefaultSubscription().subscribe({
-      next: (sub) => {
-        if (sub) this.defaultSubscriptionId = sub.id;
-      },
+      next: (sub) => { if (sub) this.defaultSubscriptionId = sub.id; },
       error: (err) => console.error('Error fetching default subscription', err)
     });
   }
@@ -57,7 +52,6 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    // Construim obiectul utilizator conform UserService
     const newUser = {
       email: this.registerData.email,
       password: this.registerData.password,
@@ -66,10 +60,25 @@ export class RegisterComponent implements OnInit {
       subscriptionId: this.defaultSubscriptionId
     };
 
+    // 1. Creăm utilizatorul
     this.userService.addUser(newUser).subscribe({
       next: () => {
-        console.log('User created successfully');
-        this.router.navigate(['/login']);
+        console.log('User created successfully. Attempting auto-login...');
+        
+        // 2. Facem Auto-Login pentru a obține datele complete (ID, etc.)
+        this.userService.login(newUser.email, newUser.password).subscribe({
+          next: (user) => {
+             // 3. Salvăm userul în sesiune (AuthService)
+             this.authService.login(user);
+             // 4. Redirecționăm către dashboard
+             this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            console.error('Auto-login failed', err);
+            // Dacă auto-login eșuează, trimitem utilizatorul la pagina de login manual
+            this.router.navigate(['/login']);
+          }
+        });
       },
       error: (err) => {
         console.error('Registration failed', err);

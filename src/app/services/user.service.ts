@@ -22,6 +22,17 @@ export class UserService {
     });
   }
 
+  // ADĂUGAT: Metoda de login
+  login(email: string, password: string): Observable<User> {
+    const params = new HttpParams()
+      .set('email', email)
+      .set('password', password);
+    
+    // Presupunem că endpoint-ul este /Login și returnează obiectul User complet
+    // Dacă backend-ul folosește POST pentru login, schimbă .get cu .post
+    return this.http.get<User>(`${this.apiUrl}/Login`, { params });
+  }
+
   addUser(data: Partial<User>): Observable<void> {
     let params = new HttpParams();
     if (data.email) params = params.set('email', data.email);
