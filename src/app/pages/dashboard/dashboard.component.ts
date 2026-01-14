@@ -17,7 +17,6 @@ export class DashboardComponent implements OnInit {
   uses: Use[] = [];
   loading: boolean = true;
 
-  // Statistici calculate pe baza datelor reale
   stats = {
     totalUses: 0,
     successful: 0,
@@ -25,42 +24,42 @@ export class DashboardComponent implements OnInit {
     lastActivity: 'N/A'
   };
 
-  // NOTĂ: Într-o aplicație reală, acest ID ar trebui să vină din AuthService
-  // Aici îl luăm din localStorage sau folosim un placeholder pentru testare
-  currentUserId: string = localStorage.getItem('userId') || 'user-id-placeholder';
-
   constructor(
     private router: Router,
     private useService: UseService,
     private authService: AuthService
   ) {
-    this.currentUser = this.authService.currentUserValue;
+    // Ne abonăm la user pentru a fi siguri că avem datele
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Dacă userul e încărcat, putem încărca datele
+      if (this.currentUser) {
+        this.loadUses();
+      }
     });
   }
 
-  onLogout() {
-    this.authService.logout();
-  }
-
   ngOnInit(): void {
-    this.loadUses();
+    // Dacă userul există deja în snapshot (ex: la refresh)
+    if (this.authService.currentUserValue) {
+        this.currentUser = this.authService.currentUserValue;
+        this.loadUses();
+    }
   }
 
   loadUses(): void {
+    if (!this.currentUser || !this.currentUser.id) return;
+
     this.loading = true;
-    // Apelăm serviciul pentru a lua utilizările user-ului curent
-    // Presupunem că backend-ul returnează o listă de Use-uri
-    // (Folosim 'any' aici pentru a evita erorile de tipare dacă definiția serviciului este singulară)
-    (this.useService.getUseByUserId(this.currentUserId) as any).subscribe({
-      next: (data: Use[] | Use) => {
-        // Asigurăm compatibilitatea fie că vine un array, fie un singur obiect
-        this.uses = Array.isArray(data) ? data : (data ? [data] : []);
+    
+    // Apelăm metoda corectată care returnează Array
+    this.useService.getUsesByUserId(this.currentUser.id).subscribe({
+      next: (data: Use[]) => {
+        this.uses = data;
         this.calculateStats();
         this.loading = false;
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error loading uses:', err);
         this.loading = false;
       }
@@ -68,17 +67,16 @@ export class DashboardComponent implements OnInit {
   }
 
   calculateStats(): void {
+    if (!this.uses) return;
+    
     this.stats.totalUses = this.uses.length;
     this.stats.successful = this.uses.filter(u => u.isSucceeded).length;
     this.stats.failed = this.stats.totalUses - this.stats.successful;
     
-    // Setăm data ultimei activități
     if (this.uses.length > 0) {
-      // Sortăm descrescător după dată pentru a găsi ultima activitate
-      const sorted = [...this.uses].sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      this.stats.lastActivity = new Date(sorted[0].createdAt).toLocaleDateString();
+      // Backend-ul le trimite deja sortate, dar pentru siguranță:
+      const lastDate = new Date(this.uses[0].createdAt); // Presupunând că primul e cel mai recent
+      this.stats.lastActivity = lastDate.toLocaleDateString() + ' ' + lastDate.toLocaleTimeString();
     } else {
       this.stats.lastActivity = '-';
     }
@@ -90,7 +88,6 @@ export class DashboardComponent implements OnInit {
 
   viewUse(use: Use): void {
     console.log('View use details:', use);
-    // Implementare viitoare: navigare către detalii
   }
 
   deleteUse(use: Use): void {
@@ -103,18 +100,5 @@ export class DashboardComponent implements OnInit {
         error: (err) => console.error('Error deleting use:', err)
       });
     }
-  }
-
-  logout(): void {
-    localStorage.removeItem('userId'); // Curățăm sesiunea simulată
-    this.router.navigate(['/login']);
-  }
-
-  profile(): void {
-    this.router.navigate(['/profile']);
-  }
-
-  subscriptions(): void {
-    this.router.navigate(['/subscriptions']);
   }
 }

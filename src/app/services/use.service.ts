@@ -28,6 +28,12 @@ export class UseService {
     });
   }
 
+  getUsesByUserId(userId: string): Observable<Use[]> {
+    return this.http.get<Use[]>(`${this.apiUrl}/GetUsesByUserId`, {
+      params: new HttpParams().set('userId', userId)
+    });
+  }
+
   getUseByIdentityCardId(identityCardId: string): Observable<Use> {
     return this.http.get<Use>(`${this.apiUrl}/GetUseByIdentityCardId`, {
       params: new HttpParams().set('identityCardId', identityCardId)
