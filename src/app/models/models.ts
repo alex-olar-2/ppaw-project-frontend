@@ -75,3 +75,10 @@ export interface IdentityDocumentResult {
   documentType?: string;
   documentTypeConfidence?: number;
 }
+
+export const SUBSCRIPTION_LIMITS: Record<string, number> = {
+  'Basic': 3,       // Exemplu: 3 documente pentru contul Free
+  'Middle': 10,     // 10 documente pentru Basic
+  'Pro': 50,  // 100 (sau nelimitat) pentru Premium
+  'Enterprise': 100     // Practic nelimitat
+};
