@@ -26,10 +26,6 @@ export class DashboardComponent implements OnInit {
     private identityCardService: IdentityCardService, // Injectăm serviciul aici
     private authService: AuthService
   ) {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      if (this.currentUser) this.loadUses();
-    });
   }
 
   ngOnInit(): void {
